@@ -1,0 +1,473 @@
+@font-face {
+  font-family: "titleFont";
+  src: url(./assets/fonts/Bricolage_Grotesque/BricolageGrotesque-VariableFont_opsz\,wdth\,wght.ttf)
+    format("truetype");
+}
+
+@font-face {
+  font-family: "bodyFont";
+  src: url(./assets/fonts/DM_Sans/DMSans-VariableFont_opsz\,wght.ttf)
+    format("truetype");
+}
+
+@font-face {
+  font-family: "bodyItalic";
+  src: url(./assets/fonts/DM_Sans/DMSans-Italic-VariableFont_opsz\,wght.ttf)
+    format("truetype");
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  font-size: 18px;
+  color: hsl(0, 0%, 100%);
+  box-sizing: border-box;
+  font-family: "bodyFont", sans-serif;
+}
+
+body {
+  background-color: hsl(243, 96%, 9%);
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+}
+
+.clicked {
+  outline: 2px solid hsl(240, 6%, 70%);
+}
+
+.focused {
+  outline: 2px solid hsl(240, 6%, 70%);
+}
+
+.header-menu {
+  position: relative;
+}
+
+.header-dropdown {
+  padding: 0.5rem 1rem;
+  background-color: hsl(243, 27%, 20%);
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.header-dropdown img:last-of-type {
+  margin-left: 10px;
+}
+
+#header-toggle:checked ~ .header-dropdown-list {
+  visibility: visible;
+  opacity: 1;
+}
+
+.header-dropdown-list {
+  opacity: 0;
+  transition: all 0.3s ease;
+  visibility: hidden;
+  position: absolute;
+  top: 130%;
+  right: 0%;
+  background-color: hsl(243, 27%, 20%);
+  border-radius: 0.5rem;
+  padding: 0.3rem;
+  width: 200%;
+  z-index: 3;
+}
+
+.unit-switch {
+  padding: 0.5rem;
+}
+
+.header-dropdown-list .group-name {
+  color: hsl(240, 6%, 70%);
+  margin-top: 0.5rem;
+}
+
+.header-dropdown-list ul {
+  list-style-type: none;
+  color: white;
+}
+
+.header-dropdown-list li {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.option-group .group-name,
+.option {
+  padding-left: 0.5rem;
+}
+
+.header-dropdown-list .option {
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.header-dropdown-list .selected {
+  background-color: hsl(243, 23%, 24%);
+}
+
+main {
+  padding: 3rem 5rem;
+  max-width: 1440px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-section {
+  text-align: center;
+}
+
+.top-section h1 {
+  font-size: 52px;
+  margin: 4rem 0;
+  font-family: "titleFont", sans-serif;
+}
+
+.search {
+  position: relative;
+}
+
+.search,
+.search-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-box,
+.search-box input {
+  background-color: hsl(243, 27%, 20%);
+}
+
+.search-box {
+  justify-content: flex-start;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  margin-right: 1rem;
+  width: 500px;
+  cursor: pointer;
+}
+
+.search-box img {
+  margin-right: 0.5rem;
+}
+
+.search-box input {
+  border: none;
+  width: 100%;
+  outline: none;
+}
+
+.search-button {
+  background-color: hsl(233, 67%, 56%);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: hsl(248, 70%, 36%);
+}
+
+.button-clicked {
+  outline: 2px solid hsl(248, 70%, 36%);
+  outline-offset: 2px;
+}
+
+.matches {
+  position: absolute;
+  left: 26%;
+  top: 150%;
+  background-color: hsl(243, 27%, 20%);
+  width: 500px;
+  text-align: left;
+  border-radius: 0.5rem;
+  padding: 0.3rem;
+  z-index: 3;
+  display: 0;
+}
+
+.match {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.match:hover {
+  background-color: hsl(243, 23%, 24%);
+  outline: 1px solid hsl(243, 23%, 30%);
+}
+
+/*Today*/
+.bottom-section {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  margin-top: 2rem;
+  column-gap: 2rem;
+}
+
+.today-hero {
+  background: url(./assets/images/bg-today-large.svg);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 300px;
+  padding: 0 2rem;
+}
+
+.loading {
+  background: url(./assets/images/loading.svg);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.today-location {
+  font-size: 32px;
+  font-weight: 900;
+  margin-bottom: 1rem;
+}
+
+.today-weather-icon {
+  width: 100px;
+}
+
+.today-weather {
+  display: flex;
+  align-items: center;
+}
+
+.today-temp {
+  font-size: 82px;
+  font-weight: 900;
+  font-family: "bodyItalic", sans-serif;
+}
+
+.today-details {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.today-details div {
+  background-color: hsl(243, 27%, 20%);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  text-align: left;
+}
+
+.today-details div span {
+  display: block;
+  margin-top: 1rem;
+  font-size: 28px;
+}
+
+/*hourly forecast*/
+.hourly-forecast {
+  background-color: hsl(243, 27%, 20%);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  grid-row: span 2;
+}
+
+.hourly-forecast .head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  position: relative;
+}
+
+.hourly-forecast .day-selector {
+  padding: 0.5rem 1rem;
+  background-color: hsl(243, 23%, 24%);
+  border-radius: 0.5rem;
+  width: 158px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.day-selector div {
+  margin-left: auto;
+}
+
+.day-selector img {
+  margin-left: auto;
+}
+
+#day-selector-toggle:checked ~ .day-selector-options {
+  visibility: visible;
+  opacity: 1;
+}
+
+.day-selector-options {
+  padding: 0.5rem;
+  background-color: hsl(243, 27%, 20%);
+  border-radius: 0.5rem;
+  position: absolute;
+  right: 0;
+  top: 130%;
+  width: 200px;
+  border: 1px solid hsl(243, 23%, 30%);
+  z-index: 4;
+  opacity: 0;
+  transition: all 0.3s ease;
+  visibility: hidden;
+}
+
+.day-selector-options .hourly-day {
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  background-color: hsl(243, 23%, 24%);
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.hourly-day:last-of-type {
+  margin: 0;
+}
+
+.hourly-forecast .weather-icon {
+  width: 15%;
+}
+
+.hours {
+  min-height: 580px;
+  max-height: 580px;
+  min-width: 372px;
+}
+
+.scrollable {
+  overflow-y: scroll;
+  scrollbar-gutter: stable both-edges;
+  padding-right: 4px;
+}
+
+.scrollable::-webkit-scrollbar {
+  width: 4px;
+  height: 20px;
+}
+
+.scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background-color: hsla(244, 23%, 24%, 0.726);
+  border-radius: 10px;
+  border: 1px solid transparent;
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(245, 23%, 22%);
+}
+
+.hourly-forecast .hour {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 53px;
+  padding-right: 1rem;
+  background-color: hsl(243, 23%, 24%);
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid hsl(243, 23%, 30%);
+}
+
+.hour .time {
+  margin-right: auto;
+}
+
+.hourly-forecast h3,
+.daily-forecast h3 {
+  font-weight: 900;
+}
+
+/*daily forecast*/
+.daily-forecast {
+  margin-top: 1rem;
+  height: 222px;
+}
+
+.daily-forecast h3 {
+  margin: 1rem 0;
+}
+
+.daily-forecast .forecast {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  column-gap: 1rem;
+}
+
+.forecast .day {
+  background-color: hsl(243, 27%, 20%);
+  border-radius: 0.5rem;
+  text-align: center;
+  height: 160px;
+  padding: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid hsl(243, 23%, 30%);
+}
+
+.day img {
+  width: 60%;
+  align-self: center;
+}
+
+.day .forecast-temp {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 0.5rem;
+}
+
+/*Error page*/
+.error {
+  margin-top: 5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.error h1 {
+  font-size: 52px;
+  font-family: "titleFont", sans-serif;
+}
+
+.error p {
+  margin: 1rem 2rem 0 2rem;
+  width: 65%;
+}
+
+.error button {
+  margin-top: 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: hsl(243, 27%, 20%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.error button img {
+  margin-right: 0.5rem;
+}
