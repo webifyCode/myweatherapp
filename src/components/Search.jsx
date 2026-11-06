@@ -1,12 +1,13 @@
 import React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import iconSearch from "../assets/images/icon-search.svg";
+import { searchPlaces } from "../api";
+
+const DEBOUNCE_MS = 300;
 
 const Search = ({
-  fetchWeatherData,
   searchQuery,
   setSearchQuery,
-  location,
   setLocation,
   matches,
   setMatches,
@@ -14,27 +15,27 @@ const Search = ({
   mouseDown,
   mouseUp,
 }) => {
-  function handleChange() {
-    setSearchQuery(document.querySelector(".search-bar").value);
+  const [input, setInput] = useState("");
+
+  // Debounce typing so we don't call the geocoding API on every keystroke.
+  useEffect(() => {
+    const timer = setTimeout(() => setSearchQuery(input.trim()), DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [input, setSearchQuery]);
+
+  function handleSearch() {
+    setSearchQuery(input.trim());
   }
 
-  function handleLocation(e) {
-    let locationName = e.target.innerText.split(",")[0];
-    let locationCountry = e.target.innerText.split(",")[1].trim();
-    let locationLat = matches.filter((match) => match.name === locationName)[0]
-      .latitude;
-    let locationLon = matches.filter((match) => match.name === locationName)[0]
-      .longitude;
+  function handleLocation(match) {
     setLocation({
-      name: locationName,
-      country: locationCountry,
-      lat: locationLat,
-      lon: locationLon,
+      name: match.name,
+      country: match.country,
+      lat: match.latitude,
+      lon: match.longitude,
     });
+    setInput("");
     setSearchQuery("");
-    if (location.lat && location.lon) {
-      fetchWeatherData(location.lat, location.lon);
-    }
   }
 
   useEffect(() => {
@@ -43,22 +44,23 @@ const Search = ({
       return;
     }
 
-    fetch(
-      `https://geocoding-api.open-meteo.com/v1/search?name=${searchQuery}&count=10&language=en&format=json`,
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.results) {
-          let results = data.results;
-          setMatches(results);
-        } else {
-          setMatches([]);
-          setServerError(true);
-        }
-      }).catch(() => {
+    // Cancel the previous request so out-of-order responses can't overwrite
+    // the results of a newer query.
+    const controller = new AbortController();
+    searchPlaces(searchQuery, controller.signal)
+      .then((results) => {
+        setMatches(results);
+        setServerError(false);
+      })
+      .catch((err) => {
+        if (err.name === "AbortError") return;
         setServerError(true);
       });
-  }, [searchQuery]);
+
+    return () => controller.abort();
+  }, [searchQuery, setMatches, setServerError]);
+
+  const showNoResults = searchQuery !== "" && matches.length === 0;
 
   return (
     <div className="search">
@@ -74,29 +76,33 @@ const Search = ({
           id="search-bar"
           className="search-bar"
           placeholder="Search for a place..."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         />
       </div>
 
-      {matches.length > 0 ? (
+      {matches.length > 0 && (
         <div className="matches">
-          {matches.map((match) => {
-            return (
-              <div
-                onClick={(e) => handleLocation(e)}
-                key={match.id}
-                className="match"
-              >
-                {match.name}, {match.country}
-              </div>
-            );
-          })}
+          {matches.map((match) => (
+            <div
+              onClick={() => handleLocation(match)}
+              key={match.id}
+              className="match"
+            >
+              {match.name}, {match.country}
+            </div>
+          ))}
         </div>
-      ) : (
-        ""
+      )}
+      {showNoResults && (
+        <div className="matches">
+          <div className="match">No results found</div>
+        </div>
       )}
       <button
         className="search-button"
-        onClick={handleChange}
+        onClick={handleSearch}
         onMouseDown={(e) => mouseDown(e)}
         onMouseUp={(e) => mouseUp(e)}
       >

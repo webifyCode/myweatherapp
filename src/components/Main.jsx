@@ -14,7 +14,6 @@ const Main = ({
   serverError,
   setServerError,
   weatherData,
-  fetchWeatherData,
   units,
   values,
   mouseDown,
@@ -28,13 +27,11 @@ const Main = ({
         <Search
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          location={location}
           setLocation={setLocation}
           matches={matches}
           setMatches={setMatches}
           serverError={serverError}
           setServerError={setServerError}
-          fetchWeatherData={fetchWeatherData}
           mouseDown={mouseDown}
           mouseUp={mouseUp}
         />
