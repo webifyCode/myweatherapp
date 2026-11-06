@@ -4,11 +4,11 @@ import logo from "../assets/images/logo.svg";
 import unitsIcon from "../assets/images/icon-units.svg";
 import dropdownIcon from "../assets/images/icon-dropdown.svg";
 import checkMark from "../assets/images/icon-checkmark.svg";
+import { fetchForecast, UNIT_PRESETS } from "../api";
 
 const Header = ({
   unitSystem,
   setUnitSystem,
-  fetchWeatherData,
   location,
   units,
   setUnits,
@@ -19,15 +19,7 @@ const Header = ({
   function handleSystemSwitch() {
     const newUnitSystem = unitSystem === "metric" ? "imperial" : "metric";
     setUnitSystem(newUnitSystem);
-
-    setUnits({
-      temperature: newUnitSystem === "metric" ? "celsius" : "fahrenheit",
-      windSpeed: newUnitSystem === "metric" ? "kmh" : "mph",
-      precipitation: newUnitSystem === "metric" ? "mm" : "inch",
-    });
-    if (location) {
-      fetchWeatherData(location.lat, location.lon, newUnitSystem);
-    }
+    setUnits(UNIT_PRESETS[newUnitSystem]);
   }
 
   function handleUnits(e) {
@@ -46,38 +38,6 @@ const Header = ({
         return { ...prevUnits, precipitation: value };
       });
     }
-  }
-
-  function changeValue() {
-    if (!location.lat || !location.lon) {
-      return;
-    }
-    fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&daily=temperature_2m_min,temperature_2m_max,weather_code&hourly=temperature_2m,weather_code&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,wind_speed_10m,weather_code&temperature_unit=${units.temperature}&windspeed_unit=${units.windSpeed}&precipitation_unit=${units.precipitation}&timezone=auto`,
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data.current) return;
-
-        setValues((prevValues) => {
-          return {
-            ...prevValues,
-            temperature: Math.floor(data.current.temperature_2m),
-            apparentTemp: Math.floor(data.current.apparent_temperature),
-            windSpeed: Math.floor(data.current.wind_speed_10m),
-            precipitation: Math.floor(data.current.precipitation),
-            hourlyTemp: data.hourly.temperature_2m.map((temp) =>
-              Math.floor(temp),
-            ),
-            minDailyTemp: data.daily.temperature_2m_min.map((temp) =>
-              Math.floor(temp),
-            ),
-            maxDailyTemp: data.daily.temperature_2m_max.map((temp) =>
-              Math.floor(temp),
-            ),
-          };
-        });
-      });
   }
 
   useEffect(() => {
@@ -116,8 +76,34 @@ const Header = ({
         option.querySelector("img").style.display = "none";
       }
     });
-    changeValue();
   }, [units]);
+
+  // Re-fetch with the user's chosen units whenever the units or location
+  // change, so the displayed values never belong to a previous location.
+  useEffect(() => {
+    if (!location?.lat || !location?.lon) return;
+
+    const controller = new AbortController();
+    fetchForecast(location.lat, location.lon, units, controller.signal)
+      .then((data) => {
+        if (!data.current) return;
+        setValues((prevValues) => ({
+          ...prevValues,
+          temperature: Math.floor(data.current.temperature_2m),
+          apparentTemp: Math.floor(data.current.apparent_temperature),
+          windSpeed: Math.floor(data.current.wind_speed_10m),
+          precipitation: Math.floor(data.current.precipitation),
+          hourlyTemp: data.hourly.temperature_2m.map(Math.floor),
+          minDailyTemp: data.daily.temperature_2m_min.map(Math.floor),
+          maxDailyTemp: data.daily.temperature_2m_max.map(Math.floor),
+        }));
+      })
+      .catch(() => {
+        // The main fetch in App surfaces errors; ignore here.
+      });
+
+    return () => controller.abort();
+  }, [units, location?.lat, location?.lon, setValues]);
 
   return (
     <header className="header">

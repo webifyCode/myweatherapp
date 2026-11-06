@@ -1,5 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import { fetchForecast, UNIT_PRESETS } from "./api";
 import Header from "./components/Header";
 import Main from "./components/Main";
 import Error from "./components/Error";
@@ -10,11 +11,7 @@ const App = () => {
   const [matches, setMatches] = useState([]);
   const [location, setLocation] = useState({});
   const [unitSystem, setUnitSystem] = useState("metric");
-  const [units, setUnits] = useState({
-    temperature: (unitSystem === "metric" ? "celsius" : "fahrenheit") || "",
-    windSpeed: (unitSystem === "metric" ? "kmh" : "mph") || "",
-    precipitation: (unitSystem === "metric" ? "mm" : "inch") || "",
-  });
+  const [units, setUnits] = useState(UNIT_PRESETS.metric);
   const [values, setValues] = useState({
     temperature: "",
     apparentTemp: "",
@@ -49,29 +46,29 @@ const App = () => {
     }
   }
 
-  function fetchWeatherData(lat, lon, unitSystem) {
-    fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_min,temperature_2m_max,weather_code&hourly=temperature_2m,weather_code&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,wind_speed_10m,weather_code&temperature_unit=${unitSystem === "metric" ? "celsius" : "fahrenheit"}&windspeed_unit=${unitSystem === "metric" ? "kmh" : "mph"}&precipitation_unit=${unitSystem === "metric" ? "mm" : "inch"}&timezone=auto`,
-      setLoading(true)
+  useEffect(() => {
+    if (!location?.lat || !location?.lon) return;
+
+    const controller = new AbortController();
+    setLoading(true);
+    fetchForecast(
+      location.lat,
+      location.lon,
+      UNIT_PRESETS[unitSystem],
+      controller.signal,
     )
-      .then((res) => res.json())
       .then((data) => {
         setWeatherData(data);
         setServerError(false);
-      }).then(()=>{setLoading(false)})
-      .catch(() => {
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (err.name === "AbortError") return;
         setServerError(true);
+        setLoading(false);
       });
-  }
 
-  useEffect(()=> {
-    console.log(loading)
-  }, [loading])
-
-  useEffect(() => {
-    if (location && location.lat && location.lon) {
-      fetchWeatherData(location.lat, location.lon, unitSystem);
-    }
+    return () => controller.abort();
   }, [location, unitSystem]);
 
   return (
@@ -81,7 +78,6 @@ const App = () => {
         setUnitSystem={setUnitSystem}
         units={units}
         setUnits={setUnits}
-        fetchWeatherData={fetchWeatherData}
         location={location}
         values={values}
         setValues={setValues}
@@ -106,8 +102,7 @@ const App = () => {
           setLocation={setLocation}
           serverError={serverError}
           setServerError={setServerError}
-          fetchWeatherData={fetchWeatherData}
-          units={units}
+            units={units}
           values={values}
           mouseDown={mouseDown}
           mouseUp={mouseUp}
